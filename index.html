@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AIML Sec A — Weekly Routine (Dwg.)</title>
+<link rel="manifest" href="manifest.json">
 <style>
   :root, :root[data-theme="light"] {
     --bg:#f4f7fa;
@@ -595,8 +596,9 @@
     <div class="tb-cell"><span class="tb-label">Sheet</span><span class="tb-value">1 of 1</span></div>
   </div>
 
-  <div class="exportrow">
+  <div class="exportrow" style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
     <a href="Final Routine AIML sec A.pdf" target="_blank" class="stamp-btn" style="text-decoration: none; display: inline-block;">&#9654; View / Download PDF</a>
+    <button id="install-btn" class="stamp-btn" style="display: none; cursor: pointer; background: transparent;">📱 Install Web App</button>
   </div>
   <div class="foot">
     <div style="margin-bottom: 6px;">LAST UPDATED ON 4th August 2026</div>
@@ -623,6 +625,52 @@ function toggleTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 })();
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker Registered'))
+      .catch(err => console.log('Service Worker Registration Failed', err));
+  });
+}
+
+// Handle PWA Installation
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Only show the install button on mobile/tablet viewports
+  if (window.innerWidth <= 768) {
+    installBtn.style.display = 'inline-block';
+  }
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', (e) => {
+    installBtn.style.display = 'none';
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User installed the web app');
+      } else {
+        console.log('User dismissed the install prompt');
+        if (window.innerWidth <= 768) {
+          installBtn.style.display = 'inline-block';
+        }
+      }
+      deferredPrompt = null;
+    });
+  });
+}
+
+window.addEventListener('appinstalled', (evt) => {
+  console.log('App was installed successfully');
+  if (installBtn) installBtn.style.display = 'none';
+});
 
 document.addEventListener('DOMContentLoaded', function(){
   const table = document.querySelector('.routine');
