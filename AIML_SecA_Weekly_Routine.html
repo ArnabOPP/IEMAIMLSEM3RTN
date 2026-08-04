@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIML Sec A — Weekly Routine (Dwg.)</title>
+<style>
+  :root{
+    --bg:#0a1e33;
+    --panel:#0d2540;
+    --panel-alt:#123354;
+    --grid-line:#2c5375;
+    --grid-faint:rgba(94,150,199,0.10);
+    --ink:#eaf2fb;
+    --ink-dim:#8ea9c6;
+    --ink-faint:#5d7fa0;
+    --cyan:#5ec8ff;
+    --amber:#ffb454;
+    --green:#3ddc97;
+    --violet:#b98cff;
+    --red:#ff6b5e;
+    --mono: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(var(--grid-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-faint) 1px, transparent 1px);
+    background-size:26px 26px;
+    color:var(--ink);
+    padding:22px 14px 40px;
+    min-height:100vh;
+  }
+  .sheet{
+    position:relative;
+    max-width:1280px;
+    margin:0 auto;
+    background:var(--panel);
+    border:1px solid var(--grid-line);
+    padding:34px 30px 24px;
+  }
+  .crop{position:absolute;width:16px;height:16px;pointer-events:none;}
+  .crop::before,.crop::after{content:'';position:absolute;background:var(--ink-faint);}
+  .crop::before{top:7px;left:0;width:16px;height:1px;}
+  .crop::after{left:7px;top:0;width:1px;height:16px;}
+  .crop.tl{top:10px;left:10px;} .crop.tr{top:10px;right:10px;}
+  .crop.bl{bottom:10px;left:10px;} .crop.br{bottom:10px;right:10px;}
+
+  .dwg-number{
+    position:absolute; top:14px; right:36px;
+    font-family:var(--mono); font-size:0.68em; color:var(--ink-dim);
+    letter-spacing:0.06em; text-align:right;
+  }
+
+  .titlehead{ margin-bottom:6px; }
+  .eyebrow{
+    font-family:var(--mono); font-size:0.7em; letter-spacing:0.22em;
+    color:var(--cyan); text-transform:uppercase; margin:0 0 6px;
+  }
+  h1{
+    font-family:var(--sans); font-weight:700; font-size:1.7em;
+    margin:0 0 4px; letter-spacing:-0.01em; color:var(--ink);
+  }
+  .subline{
+    font-family:var(--mono); font-size:0.78em; color:var(--ink-dim);
+    letter-spacing:0.02em; margin:0 0 2px;
+  }
+  .note{
+    font-family:var(--sans); font-size:0.74em; color:var(--ink-faint);
+    font-style:italic; margin:10px 0 0;
+  }
+
+  .divider{ height:1px; background:var(--grid-line); margin:20px 0 18px; }
+
+  .scroll-hint{
+    display:none; text-align:center; font-family:var(--mono);
+    font-size:0.72em; letter-spacing:0.08em; color:var(--amber);
+    margin-bottom:8px; text-transform:uppercase;
+  }
+
+  .grid-wrap{
+    overflow-x:auto; border:1px solid var(--grid-line);
+    -webkit-overflow-scrolling:touch;
+  }
+  table.routine{
+    border-collapse:collapse; width:100%; min-width:900px; background:var(--panel);
+  }
+  table.routine th{
+    background:var(--panel-alt); color:var(--ink);
+    font-family:var(--mono); font-size:0.72em; letter-spacing:0.05em;
+    text-transform:uppercase; font-weight:600; padding:10px 6px;
+    border:1px solid var(--grid-line); text-align:center;
+    position:sticky; top:0; z-index:5;
+  }
+  table.routine td{
+    border:1px solid var(--grid-line); padding:9px 8px; text-align:center;
+    font-size:0.76em; line-height:1.4; vertical-align:middle;
+    background:var(--panel); transition:background-color .2s ease;
+  }
+  .col-hi{ background:rgba(94,200,255,0.07) !important; }
+
+  .timecell{
+    background:var(--panel-alt) !important; font-family:var(--mono);
+    font-size:0.68em; color:var(--ink-dim); min-width:96px;
+    position:sticky; left:0; z-index:4; text-align:left; padding-left:14px !important;
+  }
+  .timecell .t-main{ display:block; color:var(--ink); font-weight:600; font-size:1.05em;}
+  .timecell .t-range{ display:block; margin-top:2px; }
+  .timecell::before{
+    content:''; position:absolute; left:6px; top:0; bottom:0; width:1px;
+    background:var(--ink-dim); opacity:0.5;
+  }
+  .timecell::after{
+    content:''; position:absolute; left:3px; top:50%; width:7px; height:1px;
+    background:var(--ink-dim); opacity:0.5;
+  }
+
+  .cell{ position:relative; padding-left:12px !important; text-align:left; }
+  .cell .cname{ display:block; font-weight:600; color:var(--ink); font-size:1em; }
+  .cell .ccode{ display:block; color:var(--ink-dim); font-family:var(--mono); font-size:0.82em; margin-top:2px;}
+  .cell .cfac{ display:block; font-family:var(--mono); font-size:0.85em; margin-top:3px; letter-spacing:0.03em; }
+  .cell .clab{ display:block; font-size:0.78em; font-style:italic; color:var(--ink-dim); margin-top:2px;}
+
+  .layer-lecture{ border-left:4px solid var(--cyan); }
+  .layer-lecture .cfac{ color:var(--cyan); }
+  .layer-lab{ border-left:4px solid var(--amber); }
+  .layer-lab .cfac{ color:var(--amber); }
+  .layer-tutorial{ border-left:4px solid var(--green); }
+  .layer-tutorial .cname{ color:var(--green); }
+  .layer-skill{ border-left:4px solid var(--violet); }
+  .layer-skill .cfac{ color:var(--violet); }
+
+  .breakcell{
+    background:repeating-linear-gradient(135deg, rgba(255,107,94,0.10) 0 6px, rgba(255,107,94,0.02) 6px 12px) !important;
+    color:var(--red) !important; font-family:var(--mono); font-size:0.75em;
+    letter-spacing:0.15em; text-transform:uppercase; font-weight:700;
+    border-left:4px solid var(--red) !important; text-align:center !important;
+  }
+
+  .layers{
+    margin-top:22px; border:1px solid var(--grid-line); background:var(--panel-alt);
+    padding:14px 16px;
+  }
+  .layers h3{
+    font-family:var(--mono); font-size:0.72em; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--ink-dim); margin:0 0 10px; font-weight:600;
+  }
+  .layer-row{
+    display:flex; align-items:center; gap:10px; padding:5px 0;
+    font-family:var(--mono); font-size:0.78em; border-top:1px solid rgba(255,255,255,0.05);
+  }
+  .layer-row:first-of-type{ border-top:none; }
+  .layer-idx{ color:var(--ink-faint); width:20px; flex-shrink:0;}
+  .swatch{ width:12px;height:12px;flex-shrink:0; }
+  .layer-desc{ color:var(--ink); }
+  .layer-desc span{ color:var(--ink-dim); font-family:var(--sans); font-size:0.92em; }
+
+  .findex{
+    margin-top:16px; border:1px solid var(--grid-line); background:var(--panel-alt);
+    padding:14px 16px;
+  }
+  .findex h3{
+    font-family:var(--mono); font-size:0.72em; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--ink-dim); margin:0 0 10px; font-weight:600;
+  }
+  .findex-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
+    gap:2px 18px; font-family:var(--mono); font-size:0.74em;
+  }
+  .findex-grid .row{ display:flex; justify-content:space-between; padding:3px 0; border-top:1px dashed rgba(255,255,255,0.06);}
+  .findex-grid .row:nth-child(-n+2){ border-top:none; }
+  .findex-grid .fname{ color:var(--ink); }
+  .findex-grid .fcode{ color:var(--cyan); }
+  .findex-foot{ margin-top:10px; font-size:0.7em; color:var(--ink-faint); font-style:italic; font-family:var(--sans);}
+
+  .titleblock{
+    margin-top:22px; border:1px solid var(--grid-line);
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr; grid-template-rows:auto auto;
+  }
+  .tb-cell{ border:1px solid var(--grid-line); padding:9px 12px; }
+  .tb-label{ font-family:var(--mono); font-size:0.62em; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); display:block; margin-bottom:3px;}
+  .tb-value{ font-family:var(--sans); font-size:0.86em; color:var(--ink); font-weight:600; }
+  .tb-big{ grid-row: span 2; display:flex; flex-direction:column; justify-content:center; }
+  .tb-big .tb-value{ font-size:1.05em; }
+
+  .exportrow{ text-align:center; margin:26px 0 6px; }
+  .stamp-btn{
+    font-family:var(--mono); font-size:0.76em; letter-spacing:0.1em; text-transform:uppercase;
+    background:transparent; color:var(--amber); border:1px dashed var(--amber);
+    padding:10px 22px; cursor:pointer; transition:all .2s ease;
+  }
+  .stamp-btn:hover{ background:rgba(255,180,84,0.08); }
+
+  .foot{
+    margin-top:18px; text-align:center; font-family:var(--mono); font-size:0.68em;
+    color:var(--ink-faint); letter-spacing:0.04em;
+  }
+
+  @media (max-width:768px){
+    body{ padding:12px 6px 30px; }
+    .sheet{ padding:24px 12px 16px; }
+    .dwg-number{
+      position:static;
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      border:1px solid var(--grid-line);
+      background:rgba(94,150,199,0.05);
+      padding:8px 12px;
+      margin-bottom:12px;
+      font-size:0.58em;
+    }
+    .dwg-number br{ display:none; }
+    .eyebrow{
+      font-size:0.65em;
+      color:var(--ink-dim);
+      border-bottom:1px solid rgba(94, 150, 199, 0.15);
+      padding-bottom:6px;
+      margin:0 0 6px 0;
+      letter-spacing:0.1em;
+    }
+    h1{
+      font-size:1.45em;
+      line-height:1.2;
+      color:var(--cyan);
+      margin:2px 0 6px 0;
+    }
+    .subline{
+      font-size:0.62em;
+      line-height:1.5;
+      background:var(--panel-alt);
+      border-left:3px solid var(--cyan);
+      padding:8px 10px;
+      margin:4px 0 10px 0;
+      letter-spacing:0.02em;
+      color:var(--ink);
+    }
+    .note{
+      font-size:0.62em;
+      line-height:1.45;
+      color:var(--amber);
+      background:rgba(255, 180, 84, 0.04);
+      border:1px dashed rgba(255, 180, 84, 0.15);
+      padding:8px 10px;
+      margin:4px 0 0 0;
+      font-style:normal;
+    }
+    table.routine{ min-width:760px; }
+    table.routine td{
+      font-size:0.68em;
+      padding:7px 6px;
+      transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .col-hi {
+      background-color: rgba(94, 200, 255, 0.08) !important;
+      transform: scale(1.015);
+      z-index: 2;
+      box-shadow: inset 0 0 0 1px rgba(94, 200, 255, 0.2), 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .timecell{ min-width:82px; font-size:0.62em; }
+    
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .dwg-number {
+      animation: slideFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .titlehead {
+      animation: slideFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.1s;
+    }
+    .grid-wrap {
+      animation: slideFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.2s;
+    }
+    
+    .scroll-hint{
+      display:block;
+      font-size:0.65em;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    
+    .layers { padding: 10px 12px; }
+    .layer-row { font-size: 0.7em; gap: 6px; }
+    
+    .findex-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px 10px;
+      font-size: 0.65em;
+    }
+    .findex-grid .row {
+      padding: 4px 0;
+      border-top: 1px dashed rgba(255,255,255,0.06);
+    }
+    .findex-grid .row:nth-child(1),
+    .findex-grid .row:nth-child(2) {
+      border-top: none;
+    }
+    
+    .titleblock{ grid-template-columns:1fr 1fr; }
+    .tb-big{ grid-column: span 2; }
+    .tb-cell{ padding: 7px 10px; }
+    .tb-value{ font-size: 0.78em; }
+  }
+
+  @media print{
+    body{ background:#fff; color:#0a1e33; padding:0; }
+    .sheet{ border:1px solid #0a1e33; background:#fff; }
+    table.routine, table.routine td, table.routine th{ background:#fff !important; color:#0a1e33 !important; border-color:#0a1e33 !important;}
+    .breakcell{ background:#fff !important; }
+    .stamp-btn, .scroll-hint{ display:none; }
+    .crop{ display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="crop tl"></div><div class="crop tr"></div>
+  <div class="crop bl"></div><div class="crop br"></div>
+  <div class="dwg-number">DWG NO. IEM/AIML/3RD-SEM/A&#8209;01<br>REV. 2026&#8209;27 (ODD)</div>
+
+  <div class="titlehead">
+    <p class="eyebrow">Institute of Engineering &amp; Management, Saltlake</p>
+    <h1>Weekly Class Routine</h1>
+    <p class="subline">DEPT. CSE (AIML) &nbsp;·&nbsp; 2ND YEAR, 3RD SEM &nbsp;·&nbsp; SECTION A</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="scroll-hint">&#8592; swipe to see all periods &#8594;</div>
+
+  <div class="grid-wrap">
+    <table class="routine">
+      <thead>
+        <tr>
+          <th data-col="0">Period</th>
+          <th data-col="1">Monday</th>
+          <th data-col="2">Tuesday</th>
+          <th data-col="3">Wednesday</th>
+          <th data-col="4">Thursday</th>
+          <th data-col="5">Friday</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">01</span><span class="t-range">09:30–10:15</span></td>
+          <td class="cell layer-lecture" data-col="1" rowspan="2"><span class="cname">Analog Electronic Circuits</span><span class="ccode">ESC301</span><span class="cfac">ARC</span></td>
+          <td class="cell layer-lecture" data-col="2"><span class="cname">Data Structure &amp; Algorithms</span><span class="ccode">PCCCS301</span><span class="cfac">SDC</span></td>
+          <td class="cell layer-skill" data-col="3" rowspan="2"><span class="cname">SDP III</span><span class="cfac">ARS</span></td>
+          <td class="cell layer-lecture" data-col="4"><span class="cname">Analog Electronic Circuits</span><span class="ccode">ESC301</span><span class="cfac">ARC</span></td>
+          <td class="cell layer-lecture" data-col="5"><span class="cname">Mathematics – III</span><span class="ccode">BSM301</span><span class="cfac">AYP</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">02</span><span class="t-range">10:15–11:00</span></td>
+          <td class="cell layer-lecture" data-col="2"><span class="cname">Mathematics – III</span><span class="ccode">BSM301</span><span class="cfac">SPN</span></td>
+          <td class="cell layer-skill" data-col="4"><span class="cname">Innovative Project</span></td>
+          <td class="cell layer-lab" data-col="5" rowspan="3"><span class="cname">Analog Electronics Lab</span><span class="ccode">ESC391</span><span class="cfac">ARC, SRA, MSB</span><span class="clab">Lab: 9.4 (D1 Campus)</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">03</span><span class="t-range">11:00–11:45</span></td>
+          <td class="cell layer-lab" data-col="1" rowspan="2"><span class="cname">Data Structure &amp; Algorithms Lab</span><span class="ccode">PCCCS391</span><span class="cfac">AMJ, SDC, NGB, BDD</span><span class="clab">Lab: 0.1</span></td>
+          <td class="cell layer-lecture" data-col="2"><span class="cname">Digital Electronics</span><span class="ccode">ESC302</span><span class="cfac">MG/SMT</span></td>
+          <td class="cell layer-lecture" data-col="3" rowspan="2"><span class="cname">Digital Electronics</span><span class="ccode">ESC302</span><span class="cfac">SMT</span></td>
+          <td class="cell layer-lab" data-col="4" rowspan="2"><span class="cname">IT Workshop (MATLAB)</span><span class="ccode">PCCCS372</span><span class="cfac">MNS, NBS, RKMT</span><span class="clab">Lab: 0.3</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">04</span><span class="t-range">11:45–12:30</span></td>
+          <td class="cell layer-lecture" data-col="2"><span class="cname">Digital Electronics</span><span class="ccode">ESC302</span><span class="cfac">SMT</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">—</span><span class="t-range">12:30–01:15</span></td>
+          <td class="breakcell" data-col="1" colspan="5">Lunch Break</td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">05</span><span class="t-range">01:15–02:00</span></td>
+          <td class="cell layer-lab" data-col="1" rowspan="2"><span class="cname">IT Workshop (MATLAB)</span><span class="ccode">PCCCS372</span><span class="cfac">MJM, BBK, NBS</span><span class="clab">Lab: 0.3</span></td>
+          <td class="cell layer-lab" data-col="2" rowspan="3"><span class="cname">Digital Electronics Lab</span><span class="ccode">ESC392</span><span class="cfac">SMT, MLH, Saptarshi (IEMA)</span><span class="clab">Lab: Network Lab (D2 Campus)</span></td>
+          <td class="cell layer-lecture" data-col="3" rowspan="2"><span class="cname">Data Structure &amp; Algorithms</span><span class="ccode">PCCCS301</span><span class="cfac">SDC</span></td>
+          <td class="cell layer-skill" data-col="4" rowspan="2"><span class="cname">Aptitude Class</span><span class="cfac">Gurukul Science Auditorium</span></td>
+          <td class="cell layer-lecture" data-col="5" rowspan="2"><span class="cname">Humanities – I</span><span class="ccode">EHSMCS301</span><span class="cfac">BTB</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">06</span><span class="t-range">02:00–02:45</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">07</span><span class="t-range">02:45–03:30</span></td>
+          <td class="cell layer-skill" data-col="1" rowspan="2"><span class="cname">ESP III</span><span class="cfac">BRC</span></td>
+          <td class="cell layer-lab" data-col="3" rowspan="2"><span class="cname">Data Structure &amp; Algorithms Lab</span><span class="ccode">PCCCS391</span><span class="cfac">AKP, DSS, BNM, BDD</span><span class="clab">Lab: 0.1</span></td>
+          <td class="cell layer-lecture" data-col="4"><span class="cname">Humanities – I</span><span class="ccode">EHSMCS301</span><span class="cfac">BTB</span></td>
+          <td class="cell layer-lab" data-col="5" rowspan="2"><span class="cname">Competitive Coding</span><span class="cfac">HB, IEMA</span><span class="clab">Lab: 0.4</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">08</span><span class="t-range">03:30–04:15</span></td>
+          <td class="cell layer-lecture" data-col="2"><span class="cname">Mathematics – III</span><span class="ccode">BSM301</span><span class="cfac">RKM</span></td>
+          <td class="cell layer-lecture" data-col="4"><span class="cname">Analog Electronic Circuits</span><span class="ccode">ESC301</span><span class="cfac">KPG</span></td>
+        </tr>
+        <tr>
+          <td class="timecell" data-col="0"><span class="t-main">09</span><span class="t-range">04:15–05:00</span></td>
+          <td class="cell layer-tutorial" data-col="1"><span class="cname">Mentoring / Extra Academic Activity</span></td>
+          <td class="cell layer-tutorial" data-col="2"><span class="cname">Mathematics Tutorial</span></td>
+          <td class="cell layer-tutorial" data-col="3"><span class="cname">Data Structure Tutorial</span></td>
+          <td class="cell layer-tutorial" data-col="4"><span class="cname">Data Structure Tutorial</span></td>
+          <td class="cell layer-tutorial" data-col="5"><span class="cname">Mentoring / Extra Academic Activity</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="layers">
+    <h3>Layers</h3>
+    <div class="layer-row"><span class="layer-idx">00</span><span class="swatch" style="background:var(--cyan)"></span><span class="layer-desc">LECTURE <span>— classroom theory sessions</span></span></div>
+    <div class="layer-row"><span class="layer-idx">01</span><span class="swatch" style="background:var(--amber)"></span><span class="layer-desc">LABORATORY <span>— hands-on sessions in lab rooms</span></span></div>
+    <div class="layer-row"><span class="layer-idx">02</span><span class="swatch" style="background:var(--green)"></span><span class="layer-desc">TUTORIAL / MENTORING <span>— small-group support slots</span></span></div>
+    <div class="layer-row"><span class="layer-idx">03</span><span class="swatch" style="background:var(--violet)"></span><span class="layer-desc">SKILL / ACTIVITY <span>— SDP, ESP, aptitude, projects</span></span></div>
+    <div class="layer-row"><span class="layer-idx">04</span><span class="swatch" style="background:var(--red)"></span><span class="layer-desc">BREAK <span>— lunch, no session</span></span></div>
+  </div>
+
+  <div class="findex">
+    <h3>Faculty Index</h3>
+    <div class="findex-grid">
+      <div class="row"><span class="fname">Dr. Amartya Mukherjee</span><span class="fcode">AMJ</span></div>
+      <div class="row"><span class="fname">Dr. Ayan Kumar Panja</span><span class="fcode">AKP</span></div>
+      <div class="row"><span class="fname">Dr. Piyali Datta</span><span class="fcode">PD</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Goutam Saha</span><span class="fcode">GS</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Indrajit De</span><span class="fcode">ID</span></div>
+      <div class="row"><span class="fname">Prof. Bibekananda Kundu</span><span class="fcode">BBK</span></div>
+      <div class="row"><span class="fname">Dr. Deepsubhra Guha Roy</span><span class="fcode">DGR</span></div>
+      <div class="row"><span class="fname">Dr. Sudipta Bhattacharjee</span><span class="fcode">STB</span></div>
+      <div class="row"><span class="fname">Dr. Sukanya Mitra</span><span class="fcode">SMT</span></div>
+      <div class="row"><span class="fname">Dr. Mousumi Laha</span><span class="fcode">MLH</span></div>
+      <div class="row"><span class="fname">Dr. Chandrima Thakur</span><span class="fcode">CDT</span></div>
+      <div class="row"><span class="fname">Dr. Nilanjana G Basu</span><span class="fcode">NGB</span></div>
+      <div class="row"><span class="fname">Dr. Subhadip Chandra</span><span class="fcode">SDC</span></div>
+      <div class="row"><span class="fname">Ankita Roy Chowdhury</span><span class="fcode">ARC</span></div>
+      <div class="row"><span class="fname">Pabak Indu</span><span class="fcode">PI</span></div>
+      <div class="row"><span class="fname">Mamani Bandyopadhyay</span><span class="fcode">MBD</span></div>
+      <div class="row"><span class="fname">Heerok Banerjee</span><span class="fcode">HB</span></div>
+      <div class="row"><span class="fname">Dr. Manajirini Mallik</span><span class="fcode">MJM</span></div>
+      <div class="row"><span class="fname">Debasree Sarkar</span><span class="fcode">DSS</span></div>
+      <div class="row"><span class="fname">Banashree Mandal</span><span class="fcode">BNM</span></div>
+      <div class="row"><span class="fname">Tumpa Nath</span><span class="fcode">TMN</span></div>
+      <div class="row"><span class="fname">Dr. Shreya Adhikary</span><span class="fcode">SRA</span></div>
+      <div class="row"><span class="fname">Rakesh Mitra</span><span class="fcode">RKMT</span></div>
+      <div class="row"><span class="fname">Aheli Neogy</span><span class="fcode">AHN</span></div>
+      <div class="row"><span class="fname">Minakshi Sarkar</span><span class="fcode">MIS</span></div>
+      <div class="row"><span class="fname">Dipto Chatterjee</span><span class="fcode">DPC</span></div>
+      <div class="row"><span class="fname">Bitan Banerjee</span><span class="fcode">BTB</span></div>
+      <div class="row"><span class="fname">Nibedita Biswas</span><span class="fcode">NBS</span></div>
+      <div class="row"><span class="fname">Bishwajit Das</span><span class="fcode">BDD</span></div>
+      <div class="row"><span class="fname">Debojit Datta</span><span class="fcode">DJD</span></div>
+      <div class="row"><span class="fname">Prof. Mainak Gupta</span><span class="fcode">MG</span></div>
+      <div class="row"><span class="fname">Prof. Rakesh Mitra</span><span class="fcode">RKM</span></div>
+      <div class="row"><span class="fname">Prof. Monalisa Seal</span><span class="fcode">MNS</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Kamakhya Prasad Ghatak</span><span class="fcode">KPG</span></div>
+      <div class="row"><span class="fname">Prof. Ayapanita Pramanik</span><span class="fcode">AYP</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Manas Banerjee</span><span class="fcode">MSB</span></div>
+      <div class="row"><span class="fname">Prof. Suparna Nandy</span><span class="fcode">SPN</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Arindam Saha</span><span class="fcode">ARS</span></div>
+      <div class="row"><span class="fname">Prof. (Dr.) Bireswar Roy Chowdhury</span><span class="fcode">BRC</span></div>
+    </div>
+  </div>
+
+  <div class="titleblock">
+    <div class="tb-cell tb-big">
+      <span class="tb-label">Drawing</span>
+      <span class="tb-value">Weekly Class Routine — Section A</span>
+    </div>
+    <div class="tb-cell"><span class="tb-label">Dept.</span><span class="tb-value">CSE (AIML)</span></div>
+    <div class="tb-cell"><span class="tb-label">Room</span><span class="tb-value">1.1</span></div>
+    <div class="tb-cell"><span class="tb-label">Campus</span><span class="tb-value">IEM AI Campus</span></div>
+    <div class="tb-cell"><span class="tb-label">Semester</span><span class="tb-value">2nd Yr · 3rd Sem</span></div>
+    <div class="tb-cell"><span class="tb-label">Academic Yr.</span><span class="tb-value">2026–27 (Odd)</span></div>
+    <div class="tb-cell"><span class="tb-label">Sheet</span><span class="tb-value">1 of 1</span></div>
+  </div>
+
+  <div class="exportrow">
+    <a href="Final Routine AIML sec A.pdf" target="_blank" class="stamp-btn" style="text-decoration: none; display: inline-block;">&#9654; View / Download PDF</a>
+  </div>
+  <div class="foot">
+    <div style="margin-bottom: 6px;">LAST UPDATED ON 4th August 2026</div>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; margin-bottom: 6px;">
+      <span>MADE WITH ❤️ BY <strong style="color: var(--ink);">ARNAB CHATTERJEE</strong></span>
+      <span style="color: var(--ink-faint);">|</span>
+      <a href="https://www.linkedin.com/in/arnab-chatterjee-prsnl/" target="_blank" rel="noopener noreferrer" style="color: var(--cyan); text-decoration: none; border-bottom: 1px dashed var(--cyan); display: inline-flex; align-items: center; gap: 4px; padding-bottom: 1px;">
+        LINKEDIN
+      </a>
+    </div>
+    <div style="margin-top: 6px; font-size: 0.9em; opacity: 0.85;">SOURCE: ROUTINE_AIML SEC A 2ND YEAR 3RD SEMESTER</div>
+  </div>
+</div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function(){
+  const table = document.querySelector('.routine');
+  const isMobile = window.innerWidth <= 768;
+  table.querySelectorAll('td,th').forEach(cell=>{
+    const startEv = isMobile ? 'touchstart':'mouseenter';
+    const endEv = isMobile ? 'touchend':'mouseleave';
+    cell.addEventListener(startEv, function(e){
+      if(isMobile) e.preventDefault();
+      const c = this.getAttribute('data-col');
+      if(c && c!=='0') {
+        table.querySelectorAll('.col-hi').forEach(el=>el.classList.remove('col-hi'));
+        table.querySelectorAll(`[data-col="${c}"]`).forEach(el=>el.classList.add('col-hi'));
+      }
+    });
+    cell.addEventListener(endEv, function(){
+      if(!isMobile) table.querySelectorAll('.col-hi').forEach(el=>el.classList.remove('col-hi'));
+    });
+  });
+  if(isMobile){
+    document.addEventListener('touchstart', function(e){
+      if(!table.contains(e.target)) table.querySelectorAll('.col-hi').forEach(el=>el.classList.remove('col-hi'));
+    });
+  }
+
+  const wrap = document.querySelector('.grid-wrap');
+  if(wrap){
+    wrap.style.scrollBehavior='smooth';
+    
+    let startX = 0;
+    let startY = 0;
+    let scrollLeft = 0;
+    let isDown = false;
+    let moved = false;
+    
+    // Touch events for swiping
+    wrap.addEventListener('touchstart', function(e) {
+      isDown = true;
+      moved = false;
+      startX = e.touches[0].pageX - wrap.offsetLeft;
+      startY = e.touches[0].pageY - wrap.offsetTop;
+      scrollLeft = wrap.scrollLeft;
+      wrap.style.scrollBehavior = 'auto';
+    }, { passive: true });
+    
+    wrap.addEventListener('touchmove', function(e) {
+      if (!isDown) return;
+      
+      const x = e.touches[0].pageX - wrap.offsetLeft;
+      const y = e.touches[0].pageY - wrap.offsetTop;
+      const walkX = (x - startX) * 2;
+      const walkY = Math.abs(y - startY);
+      
+      if (Math.abs(walkX) > walkY) {
+        e.preventDefault();
+        moved = true;
+        wrap.scrollLeft = scrollLeft - walkX;
+      }
+    }, { passive: false });
+    
+    wrap.addEventListener('touchend', function(e) {
+      isDown = false;
+      wrap.style.scrollBehavior = 'smooth';
+    }, { passive: true });
+    
+    // Mouse events for desktop drag
+    wrap.addEventListener('mousedown', function(e) {
+      isDown = true;
+      moved = false;
+      startX = e.pageX - wrap.offsetLeft;
+      scrollLeft = wrap.scrollLeft;
+      wrap.style.cursor = 'grabbing';
+      wrap.style.scrollBehavior = 'auto';
+    });
+    
+    wrap.addEventListener('mousemove', function(e) {
+      if (!isDown) return;
+      e.preventDefault();
+      moved = true;
+      const x = e.pageX - wrap.offsetLeft;
+      const walk = (x - startX) * 2;
+      wrap.scrollLeft = scrollLeft - walk;
+    });
+    
+    ['mouseup', 'mouseleave'].forEach(ev => {
+      wrap.addEventListener(ev, function() {
+        isDown = false;
+        wrap.style.cursor = 'grab';
+        wrap.style.scrollBehavior = 'smooth';
+      });
+    });
+    
+    wrap.style.cursor = 'grab';
+    
+    if(window.innerWidth <= 768){
+      setTimeout(() => {
+        wrap.scrollLeft = 50;
+        setTimeout(() => {
+          wrap.scrollLeft = 0;
+        }, 300);
+      }, 1000);
+    }
+  }
+});
+</script>
+</body>
+</html>
