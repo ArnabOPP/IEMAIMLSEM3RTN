@@ -2,7 +2,7 @@
   "name": "AIML Sec A Class Routine",
   "short_name": "AIML Routine",
   "description": "Weekly Class Routine for CSE (AIML), 2nd Year 3rd Semester, Section A",
-  "start_url": "./AIML_SecA_Weekly_Routine.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f7fa",
   "theme_color": "#0a1e33",
