@@ -1,6 +1,6 @@
 const CACHE_NAME = 'aiml-routine-v1';
 const ASSETS = [
-  './AIML_SecA_Weekly_Routine.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
